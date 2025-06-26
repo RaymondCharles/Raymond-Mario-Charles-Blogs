@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raymond Mario Charles Blogs</title>
+
+  <!-- Font Awesome CDN -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  >
+  <!-- Your Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <a href="#" class="logo">
+      <span>R</span>aymond <span>M</span>ario <span>C</span>harles <span>B</span>logs
+    </a>
+    <nav class="navbar">
+      <a href="#banner">banner</a>
+      <a href="#posts">my posts</a>
+      <a href="#contact">contact me</a>
+    </nav>
+    <div class="icons">
+      <i class="fas fa-bars" id="menu-bars"></i>
+      <i class="fas fa-search" id="search-icon"></i>
+      <!-- NEW: Auth buttons -->
+      <button id="btn-login"  class="btn auth-btn">Sign in</button>
+      <button id="btn-logout" class="btn auth-btn" hidden>Sign out</button>
+    </div>
+    <form action="" class="search-form">
+      <input type="search" placeholder="search here..." id="search-box">
+      <label for="search-box" class="fas fa-search"></label>
+    </form>
+  </header>
+
+  <!-- Banner -->
+  <section class="banner" id="banner">
+    <div class="content">
+      <h3>Demystifying Code & Computation</h3>
+      <p>
+        Dive into topics in programming, data structures, machine learning, and
+        more—explained with clarity and curiosity.
+      </p>
+      <a href="#posts" class="btn">my blogs</a>
+    </div>
+  </section>
+
+  <!-- Posts Section -->
+  <section class="container" id="posts">
+    <div class="posts-container">
+
+      <!-- Post #1: slug = Caching-The-Unsung-Hero-of-Fast-Software -->
+      <div
+        class="post"
+        id="Caching-The-Unsung-Hero-of-Fast-Software"
+        data-category="Systems Design"
+      >
+        <img src="images/blog1.jpg" alt="" class="image">
+        <div class="date">
+          <i class="far fa-clock"></i>
+          <span>24th June, 2025</span>
+        </div>
+        <h3 class="title">Caching: The Unsung Hero of Fast Software</h3>
+        <p class="text">
+          In an era where milliseconds define user experience and system
+          scalability, caching emerges as one of the most powerful—yet nuanced—
+          techniques in a software engineer's toolkit...
+        </p>
+        <div class="links">
+          <a href="#" class="user">
+            <i class="far fa-user"></i>
+            <span>By Raymond Mario Charles</span>
+          </a>
+          <a href="#" class="icon">
+            <i class="far fa-comment"></i>
+            <span>(0)</span>
+          </a>
+          <a href="#" class="icon">
+            <i class="far fa-share-square"></i>
+            <span>(0)</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Post #2: slug = Microservices-vs-Monoliths -->
+      <div
+        class="post"
+        id="Microservices-vs-Monoliths"
+        data-category="Systems Design"
+      >
+        <img src="images/blog-2.jpg" alt="" class="image">
+        <div class="date">
+          <i class="far fa-clock"></i>
+          <span>12th June, 2025</span>
+        </div>
+        <h3 class="title">Microservices vs Monoliths</h3>
+        <p class="text">
+          A breakdown of modern system architectures, focusing on trade‐offs
+          between microservices and monoliths for scalability, speed, and
+          complexity...
+        </p>
+        <div class="links">
+          <a href="#" class="user">
+            <i class="far fa-user"></i>
+            <span>By Raymond Mario Charles</span>
+          </a>
+          <a href="#" class="icon">
+            <i class="far fa-comment"></i>
+            <span>(0)</span>
+          </a>
+          <a href="#" class="icon">
+            <i class="far fa-share-square"></i>
+            <span>(0)</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sidebar… (unchanged) -->
+    <div class="sidebar">
+      <!-- … your existing sidebar code … -->
+    </div>
+  </section>
+
+  <!-- Contact Form + Footer… (unchanged) -->
+  <section class="contact" id="contact">…</section>
+  <section class="footer">…</section>
+
+  <!-- 1) Firebase App + Analytics + Firestore + Auth SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAnalytics }  from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
+    import { getFirestore }  from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      onAuthStateChanged,
+      signInWithPopup,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    // ← your config from the console
+    const firebaseConfig = {
+      apiKey: "AIzaSyDEENPQj618mPtJLvR-QQlVFbbz3KNOpRU",
+      authDomain: "blog-website-de482.firebaseapp.com",
+      projectId: "blog-website-de482",
+      storageBucket: "blog-website-de482.appspot.com",
+      messagingSenderId: "1036917472247",
+      appId: "1:1036917472247:web:b4ff13edab11d526680cf2",
+      measurementId: "G-GHWM78YX25"
+    };
+
+    // Initialize all services
+    const app       = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db        = getFirestore(app);
+    const auth      = getAuth(app);
+    const provider  = new GoogleAuthProvider();
+
+    // Expose to your other scripts
+    window.fb = { db, auth, provider };
+
+    // — 简单的 Sign-In/Out wiring —
+    const btnLogin  = document.getElementById('btn-login');
+    const btnLogout = document.getElementById('btn-logout');
+
+    btnLogin.onclick = () => signInWithPopup(auth, provider).catch(console.error);
+    btnLogout.onclick = () => signOut(auth).catch(console.error);
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        btnLogin.hidden  = true;
+        btnLogout.hidden = false;
+      } else {
+        btnLogin.hidden  = false;
+        btnLogout.hidden = true;
+      }
+    });
+  </script>
+
+  <!-- 2) Your main site script (comments, filtering, sharing…) -->
+  <script type="module" src="js/script.js"></script>
+</body>
+</html>
