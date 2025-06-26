@@ -123,15 +123,125 @@
 
     </div>
 
-    <!-- Sidebar… (unchanged) -->
+    <!-- Sidebar -->
     <div class="sidebar">
-      <!-- … your existing sidebar code … -->
+      <!-- About Me -->
+      <div class="box">
+        <h3 class="title">about me</h3>
+        <div class="about">
+          <img src="images/user.png" alt="">
+          <h3>Raymond Mario Charles</h3>
+          <p>
+            Aspiring Software Developer | Passionate About Tech & Innovation |
+            Lifelong Learner
+          </p>
+          <div class="follow">
+            <a href="#" class="fab fa-linkedin"></a>
+            <a href="#" class="fab fa-github"></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="box">
+        <h3 class="title">categories</h3>
+        <div class="category">
+          <a href="#" class="category-link" data-filter="All">
+            All <span>2</span>
+          </a>
+          <a href="#" class="category-link" data-filter="Systems Design">
+            Systems Design <span>2</span>
+          </a>
+          <a href="#" class="category-link" data-filter="Artificial Intelligence">
+            Artificial Intelligence <span>0</span>
+          </a>
+          <a href="#" class="category-link" data-filter="Machine Learning">
+            Machine Learning <span>0</span>
+          </a>
+          <a href="#" class="category-link" data-filter="Programming">
+            Programming <span>0</span>
+          </a>
+          <a href="#" class="category-link" data-filter="Cybersecurity">
+            Cybersecurity <span>0</span>
+          </a>
+          <a href="#" class="category-link" data-filter="Cloud">
+            Cloud <span>0</span>
+          </a>
+          <a href="#" class="category-link" data-filter="Data Science">
+            Data Science <span>0</span>
+          </a>
+          <a href="#" class="category-link" data-filter="Networking">
+            Networking <span>0</span>
+          </a>
+          <a href="#" class="category-link" data-filter="Software Engineering">
+            Software Engineering <span>0</span>
+          </a>
+          <a href="#" class="category-link" data-filter="Gaming Development">
+            Gaming Development <span>0</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Popular Posts -->
+      <div class="box">
+        <h3 class="title">popular posts</h3>
+        <div class="p-post">
+          <a href="#Caching-The-Unsung-Hero-of-Fast-Software">
+            <h3>Caching: The Unsung Hero of Fast Software</h3>
+            <span><i class="far fa-clock"></i> 24th June 2025</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Popular Tags -->
+      <div class="box">
+        <h3 class="title">popular tags</h3>
+        <div class="tags">
+          <a href="#">Systems Design</a>
+          <a href="#">Artificial Intelligence</a>
+          <a href="#">Machine Learning</a>
+          <a href="#">Programming</a>
+          <a href="#">Cybersecurity</a>
+          <a href="#">Cloud</a>
+          <a href="#">Data Science</a>
+          <a href="#">Networking</a>
+          <a href="#">Software Engineering</a>
+          <a href="#">Games Development</a>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- Contact Form -->
+  <section class="contact" id="contact">
+    <form action="">
+      <h3>contact me</h3>
+      <div class="inputBox">
+        <input type="text" placeholder="name">
+        <input type="email" placeholder="email">
+      </div>
+      <div class="inputBox">
+        <input type="number" placeholder="number">
+        <input type="text" placeholder="subject">
+      </div>
+      <textarea placeholder="message" cols="30" rows="10"></textarea>
+      <input type="submit" value="send message" class="btn">
+    </form>
+  </section>  
+
+    <!-- Footer -->
+  <section class="footer">
+    <div class="follow">
+      <a href="#" class="fab fa-linkedin"></a>
+      <a href="#" class="fab fa-github"></a>
+    </div>
+    <div class="credit">
+      Created by <span>Raymond Mario Charles</span> | all rights reserved
     </div>
   </section>
 
-  <!-- Contact Form + Footer… (unchanged) -->
-  <section class="contact" id="contact">…</section>
-  <section class="footer">…</section>
 
   <!-- 1) Firebase App + Analytics + Firestore + Auth SDKs -->
   <script type="module">
