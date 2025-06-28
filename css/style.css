@@ -576,3 +576,7 @@ section{
   font-size: 1.6rem;
   color: var(--black);
 }
+
+.auth-btn[hidden] {
+  display: none !important;
+}
