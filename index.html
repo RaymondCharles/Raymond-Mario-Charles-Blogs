@@ -32,6 +32,7 @@
       <!-- NEW: Auth buttons -->
       <button id="btn-login"  class="btn auth-btn">Sign in</button>
       <button id="btn-logout" class="btn auth-btn" hidden>Sign out</button>
+      <span id="user-greeting" class="user-greeting" hidden></span>
     </div>
     <form action="" class="search-form">
       <input type="search" placeholder="search here..." id="search-box">
@@ -285,17 +286,28 @@
     btnLogout.onclick = () => signOut(auth).catch(console.error);
 
     onAuthStateChanged(auth, user => {
-      if (user) {
-        btnLogin.hidden  = true;
-        btnLogout.hidden = false;
-      } else {
-        btnLogin.hidden  = false;
-        btnLogout.hidden = true;
-      }
-    });
-  </script>
+    console.log("⛳ Auth state changed:", user);
 
-  <!-- 2) Your main site script (comments, filtering, sharing…) -->
+    const btnLogin    = document.getElementById('btn-login');
+    const btnLogout   = document.getElementById('btn-logout');
+    const userGreeting = document.getElementById('user-greeting');
+
+    if (user) {
+      // Hide sign-in, show sign-out + greeting
+      btnLogin.hidden       = true;
+      btnLogout.hidden      = false;
+      userGreeting.hidden   = false;
+      userGreeting.textContent = `Welcome, ${user.displayName}!`;
+    } else {
+      // Show sign-in, hide sign-out + greeting
+      btnLogin.hidden       = false;
+      btnLogout.hidden      = true;
+      userGreeting.hidden   = true;
+      userGreeting.textContent = '';
+    }
+  });
+  </script>
+<!-- Running the script -->
   <script type="module" src="js/script.js"></script>
 </body>
 </html>
