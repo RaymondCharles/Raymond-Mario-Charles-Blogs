@@ -580,3 +580,89 @@ section{
 .auth-btn[hidden] {
   display: none !important;
 }
+
+/* Comment styling */
+.comment-item {
+  background: #f9f9f9;
+  border-radius: .4rem;
+  margin-bottom: .8rem;
+  padding: .8rem 1rem;
+  font-size: 1.4rem;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: .4rem;
+}
+
+.comment-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: .6rem;
+}
+
+.comment-author {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.comment-time {
+  font-size: 1.2rem;
+  color: var(--light-color);
+}
+
+.comment-text {
+  padding-left: 3.6rem;
+  margin-bottom: .6rem;
+}
+/* Reaction buttons */
+.comment-reactions {
+  display: flex;
+  gap: 1rem;
+  padding-left: 3.6rem;
+  margin-bottom: .6rem;
+}
+.comment-reactions .reaction {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+}
+.comment-reactions .reaction i {
+  font-size: 1.2rem;
+}
+/* Reply UI */
+.comment-reply-section {
+  padding-left: 3.6rem;
+  margin-bottom: .8rem;
+}
+.comment-reply-section .replies-container {
+  margin-top: .6rem;
+}
+.comment-reply {
+  background: #f1f1f1;
+  border-radius: .4rem;
+  padding: .6rem;
+  margin-bottom: .6rem;
+  margin-left: 3rem;
+}
+.comment-reply .comment-header { margin-bottom: .3rem; }
+.comment-reply .comment-text { padding-left: 3.6rem; }
+/* Reply form */
+.comment-reply-section .reply-form {
+  display: none;
+  margin-top: .4rem;
+  gap: .5rem;
+}
+.comment-reply-section .reply-form input {
+  flex: 1;
+  padding: .5rem;
+  font-size: 1.4rem;
+}
+.comment-reply-section .btn-submit-reply {
+  padding: .5rem 1rem;
+}
+/* ───────────────────────────────────────────────────────────────────────── */
