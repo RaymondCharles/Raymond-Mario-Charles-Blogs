@@ -21,7 +21,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ── 0) Init Firebase App, Firestore & Auth ───────────────────────────────
+  // ── 0) Initialize Firebase App, Firestore & Auth ────────────────────────
   const firebaseConfig = {
     apiKey: "AIzaSyDEENPQj618mPtJLvR-QQlVFbbz3KNOpRU",
     authDomain: "blog-website-de482.firebaseapp.com",
@@ -41,9 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Track signed-in user
   let currentUser = null;
-  onAuthStateChanged(auth, user => currentUser = user);
+  onAuthStateChanged(auth, user => {
+    currentUser = user;
+  });
 
-  // ── 1) Auth button wiring (optional if in index.html) ───────────────────
+  // ── 1) Auth button wiring (if in index.html) ────────────────────────────
   const btnLogin     = document.getElementById("btn-login");
   const btnLogout    = document.getElementById("btn-logout");
   const userGreeting = document.getElementById("user-greeting");
@@ -103,7 +105,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const excerpt = post.querySelector(".text").textContent.toLowerCase();
       post.style.display = title.includes(q) || excerpt.includes(q) ? "" : "none";
     });
-    document.querySelector("#posts").scrollIntoView({ behavior: "smooth" });
+    document.querySelector("#posts")
+            .scrollIntoView({ behavior: "smooth" });
   });
 
   // ── 4) Category filtering + smooth scroll ────────────────────────────────
@@ -118,7 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
         post.style.display =
           (filter === "All" || post.dataset.category === filter) ? "" : "none";
       });
-      document.querySelector("#posts").scrollIntoView({ behavior: "smooth" });
+      document.querySelector("#posts")
+              .scrollIntoView({ behavior: "smooth" });
     });
   });
 
