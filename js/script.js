@@ -21,7 +21,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ── 0) Initialize Firebase App, Firestore & Auth ────────────────────────
+
+  // ── 0. INIT FIREBASE ────────────────────────────────────────────
   const firebaseConfig = {
     apiKey: "AIzaSyDEENPQj618mPtJLvR-QQlVFbbz3KNOpRU",
     authDomain: "blog-website-de482.firebaseapp.com",
@@ -36,309 +37,302 @@ document.addEventListener("DOMContentLoaded", () => {
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
 
-  // Expose for debugging
-  window.fb = { db, auth, provider };
-
-  // Track signed-in user
   let currentUser = null;
   onAuthStateChanged(auth, user => {
     currentUser = user;
+    syncAuthButtons();
   });
 
-  // ── 1) Auth button wiring (if in index.html) ────────────────────────────
+  // ── 1. SIGN-IN/OUT BUTTONS ────────────────────────────────────────
   const btnLogin     = document.getElementById("btn-login");
   const btnLogout    = document.getElementById("btn-logout");
   const userGreeting = document.getElementById("user-greeting");
 
-  if (btnLogin && btnLogout) {
-    btnLogin.onclick  = () => signInWithPopup(auth, provider).catch(console.error);
-    btnLogout.onclick = () => signOut(auth).catch(console.error);
+  btnLogin?.addEventListener("click", () => {
+    signInWithPopup(auth, provider).catch(console.error);
+  });
+  btnLogout?.addEventListener("click", () => {
+    signOut(auth).catch(console.error);
+  });
 
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        btnLogin.hidden         = true;
-        btnLogout.hidden        = false;
-        userGreeting.hidden     = false;
-        userGreeting.textContent = `Welcome, ${user.displayName}!`;
-      } else {
-        btnLogin.hidden     = false;
-        btnLogout.hidden    = true;
-        userGreeting.hidden = true;
-      }
-    });
+  function syncAuthButtons() {
+    if (!btnLogin || !btnLogout || !userGreeting) return;
+    if (currentUser) {
+      btnLogin.hidden      = true;
+      btnLogout.hidden     = false;
+      userGreeting.hidden  = false;
+      userGreeting.textContent = `Welcome, ${currentUser.displayName}!`;
+    } else {
+      btnLogin.hidden      = false;
+      btnLogout.hidden     = true;
+      userGreeting.hidden  = true;
+      userGreeting.textContent = "";
+    }
   }
 
-  // ── 2) Mobile menu & search toggle ───────────────────────────────────────
+  // ── 2. MENU & SEARCH TOGGLE ──────────────────────────────────────
   const menu       = document.querySelector("#menu-bars");
   const navbar     = document.querySelector(".navbar");
   const searchIcon = document.querySelector("#search-icon");
   const searchForm = document.querySelector(".search-form");
 
-  menu.onclick = () => {
+  menu?.addEventListener("click", () => {
     menu.classList.toggle("fa-times");
     navbar.classList.toggle("active");
     searchIcon.classList.remove("fa-times");
     searchForm.classList.remove("active");
-  };
-  searchIcon.onclick = () => {
+  });
+
+  searchIcon?.addEventListener("click", () => {
     searchIcon.classList.toggle("fa-times");
     searchForm.classList.toggle("active");
     menu.classList.remove("fa-times");
     navbar.classList.remove("active");
-  };
-  window.onscroll = () => {
+  });
+
+  window.addEventListener("scroll", () => {
     menu.classList.remove("fa-times");
     navbar.classList.remove("active");
     searchIcon.classList.remove("fa-times");
     searchForm.classList.remove("active");
-  };
+  });
 
-  // ── 3) SEARCH: filter posts on submit ───────────────────────────────────
+  // ── 3. LIVE SEARCH ────────────────────────────────────────────────
   const searchBox = document.querySelector("#search-box");
   const blogPosts = document.querySelectorAll(".post");
 
-  searchForm.addEventListener("submit", e => {
+  searchForm?.addEventListener("submit", e => {
     e.preventDefault();
     const q = searchBox.value.trim().toLowerCase();
-    blogPosts.forEach(post => {
-      const title   = post.querySelector(".title").textContent.toLowerCase();
-      const excerpt = post.querySelector(".text").textContent.toLowerCase();
-      post.style.display = title.includes(q) || excerpt.includes(q) ? "" : "none";
+    blogPosts.forEach(p => {
+      const title = p.querySelector(".title")?.textContent.toLowerCase() || "";
+      const text  = p.querySelector(".text")?.textContent.toLowerCase() || "";
+      p.style.display = (title.includes(q) || text.includes(q)) ? "" : "none";
     });
-    document.querySelector("#posts")
-            .scrollIntoView({ behavior: "smooth" });
+    document.querySelector("#posts")?.scrollIntoView({ behavior: "smooth" });
   });
 
-  // ── 4) Category filtering + smooth scroll ────────────────────────────────
-  const categoryLinks = document.querySelectorAll(".category-link");
-  categoryLinks.forEach(link => {
+  // ── 4. CATEGORY FILTER ───────────────────────────────────────────
+  document.querySelectorAll(".category-link").forEach(link => {
     link.addEventListener("click", e => {
       e.preventDefault();
       const filter = link.dataset.filter;
-      categoryLinks.forEach(l => l.classList.remove("active-category"));
+      document.querySelectorAll(".category-link")
+        .forEach(l => l.classList.remove("active-category"));
       link.classList.add("active-category");
-      blogPosts.forEach(post => {
-        post.style.display =
-          (filter === "All" || post.dataset.category === filter) ? "" : "none";
+
+      blogPosts.forEach(p => {
+        p.style.display = (filter === "All" || p.dataset.category === filter) ? "" : "none";
       });
-      document.querySelector("#posts")
-              .scrollIntoView({ behavior: "smooth" });
+      document.querySelector("#posts")?.scrollIntoView({ behavior: "smooth" });
     });
   });
 
-  // ── 5) Comments & Share ───────────────────────────────────────────────────
-  blogPosts.forEach(post => {
-    // a) Inject comments UI
-    const commentsSection = document.createElement("div");
-    commentsSection.className = "comments-section";
-    commentsSection.innerHTML = `
-      <div class="existing-comments"></div>
-      <div class="add-comment">
-        <input type="text" placeholder="Write a comment…"/>
-        <button class="btn-submit">Post</button>
-      </div>
-    `;
-    post.appendChild(commentsSection);
+  // ── TOAST ─────────────────────────────────────────────────────────
+  function showToast(msg) {
+    let t = document.querySelector(".toast");
+    if (!t) {
+      t = document.createElement("div");
+      t.className = "toast";
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add("visible");
+    setTimeout(() => t.classList.remove("visible"), 2000);
+  }
 
-    // b) Grab elements
-    const commentIcon      = post.querySelector(".fa-comment").parentElement;
-    const shareIcon        = post.querySelector(".fa-share-square").parentElement;
-    const commentCountSpan = commentIcon.querySelector("span");
-    const shareCountSpan   = shareIcon.querySelector("span");
-    const commentInput     = commentsSection.querySelector("input");
-    const commentBtn       = commentsSection.querySelector(".btn-submit");
-    const existingComments = commentsSection.querySelector(".existing-comments");
-
-    // Prompt on focus if not signed in
-    commentInput.addEventListener("focus", () => {
-      if (!currentUser) showToast("Please sign in to leave a comment!");
-    });
-
-    // c) Unique post ID
-    const keyBase = post.querySelector(".title").innerText
-      .trim()
-      .replace(/\s+/g, "-");
-    post.id = keyBase;
-
-    // d) Load share count
-    let shareCount = parseInt(localStorage.getItem(`${keyBase}-shares`) || "0", 10);
-    shareCountSpan.textContent = `(${shareCount})`;
-
-    // e) Stream comments from Firestore
-    const commentsCol   = collection(db, "posts", keyBase, "comments");
-    const commentsQuery = query(commentsCol, orderBy("created", "asc"));
-    onSnapshot(commentsQuery, snap => {
-      existingComments.innerHTML = "";
-
+  // ── RECURSIVE THREAD RENDERER ────────────────────────────────────
+  function renderThread(pathArray, container) {
+    const colRef = collection(db, ...pathArray);
+    const q      = query(colRef, orderBy("created", "asc"));
+    onSnapshot(q, snap => {
+      container.innerHTML = "";
       snap.forEach(docSnap => {
-        const data      = docSnap.data();
-        const when      = data.created?.toDate() || new Date();
-        const commentId = docSnap.id;
+        const data    = docSnap.data();
+        const created = data.created?.toDate() || new Date();
+        const author  = data.author || {};
+        const avatar  = author.photoURL || "images/default-avatar.png";
+        const name    = author.name     || "Anonymous";
+        const id      = docSnap.id;
 
-        // Safely extract author (fallbacks if undefined)
-        const avatarUrl  = data.author?.photoURL || 'images/default-avatar.png';
-        const authorName = data.author?.name     || 'Anonymous';
-
-        // ❶ Main comment
-        const div = document.createElement("div");
-        div.className = "comment-item";
-        div.setAttribute("data-comment-id", commentId);
-        div.innerHTML = `
+        // comment wrapper
+        const wrap = document.createElement("div");
+        wrap.className = "comment-item";
+        wrap.innerHTML = `
           <div class="comment-header">
-            <img src="${avatarUrl}" class="comment-avatar"/>
-            <div>
-              <div class="comment-author">${authorName}</div>
-              <div class="comment-time">${when.toLocaleString()}</div>
+            <img src="${avatar}" class="comment-avatar" />
+            <div class="comment-meta">
+              <div class="comment-author">${name}</div>
+              <div class="comment-time">${created.toLocaleString()}</div>
             </div>
           </div>
           <div class="comment-text">${data.text}</div>
-
-          <!-- ❷ Reactions -->
-          <div class="comment-reactions">
-            <div class="reaction" data-type="like">
-              <i class="fas fa-thumbs-up"></i>
-              <span>${data.reactions?.like || 0}</span>
-            </div>
-            <div class="reaction" data-type="love">
-              <i class="fas fa-heart"></i>
-              <span>${data.reactions?.love || 0}</span>
-            </div>
+          <div class="comment-actions">
+            <button type="button" class="reaction" data-type="like">👍 ${data.reactions?.like||0}</button>
+            <button type="button" class="reaction" data-type="love">❤️ ${data.reactions?.love||0}</button>
+            <button type="button" class="btn-reply">Reply</button>
           </div>
-
-          <!-- ❸ Replies -->
-          <div class="comment-reply-section">
-            <button class="btn-reply">Reply</button>
-            <div class="reply-form">
-              <input type="text" placeholder="Write a reply…"/>
-              <button class="btn-submit-reply">Post</button>
+          <div class="reply-area">
+            <div class="reply-form" style="display:none; gap:8px; align-items:center;">
+              <input type="text" placeholder="Write a reply…" class="reply-input"/>
+              <button type="button" class="btn-submit-reply">Post</button>
             </div>
             <div class="replies-container"></div>
           </div>
         `;
-        existingComments.appendChild(div);
+        container.appendChild(wrap);
 
-        // Reactions handlers
-        div.querySelectorAll(".reaction").forEach(el => {
-          el.addEventListener("click", async () => {
-            if (!currentUser) {
-              showToast("Please sign in to react!");
-              return;
-            }
-            const type = el.dataset.type;
-            const ref  = doc(db, "posts", keyBase, "comments", commentId);
+        // reactions
+        wrap.querySelectorAll(".reaction").forEach(btn => {
+          btn.addEventListener("click", async e => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!currentUser) return showToast("Please sign in to react!");
+            const type = btn.dataset.type;
+            const ref  = doc(db, ...pathArray, id);
             await updateDoc(ref, { [`reactions.${type}`]: increment(1) });
           });
         });
 
-        // Replies stream
-        const repliesContainer = div.querySelector(".replies-container");
-        const repliesForm      = div.querySelector(".reply-form");
-        const replyInput       = repliesForm.querySelector("input");
-        const replyBtn         = repliesForm.querySelector(".btn-submit-reply");
+        // reply toggle & post
+        const btnReply   = wrap.querySelector(".btn-reply");
+        const replyForm  = wrap.querySelector(".reply-form");
+        const replyInput = wrap.querySelector(".reply-input");
+        const btnSubmit  = wrap.querySelector(".btn-submit-reply");
+        const nextPath   = [...pathArray, id, "replies"];
+        const repliesCtr = wrap.querySelector(".replies-container");
 
-        const repliesCol   = collection(db,
-          "posts", keyBase, "comments", commentId, "replies"
-        );
-        const repliesQuery = query(repliesCol, orderBy("created", "asc"));
-        onSnapshot(repliesQuery, rSnap => {
-          repliesContainer.innerHTML = "";
-          rSnap.forEach(rDoc => {
-            const rData = rDoc.data();
-            const rWhen = rData.created?.toDate() || new Date();
-
-            // Safely extract reply author
-            const rAvatar = rData.author?.photoURL || 'images/default-avatar.png';
-            const rAuthor = rData.author?.name     || 'Anonymous';
-
-            const rDiv = document.createElement("div");
-            rDiv.className = "comment-reply";
-            rDiv.innerHTML = `
-              <div class="comment-header">
-                <img src="${rAvatar}" class="comment-avatar"/>
-                <div>
-                  <div class="comment-author">${rAuthor}</div>
-                  <div class="comment-time">${rWhen.toLocaleString()}</div>
-                </div>
-              </div>
-              <div class="comment-text">${rData.text}</div>
-            `;
-            repliesContainer.appendChild(rDiv);
-          });
-        });
-
-        // Toggle reply form
-        div.querySelector(".btn-reply").addEventListener("click", () => {
-          repliesForm.style.display =
-            repliesForm.style.display === "flex" ? "none" : "flex";
-          if (currentUser) replyInput.focus();
-        });
-
-        // Post a reply
-        replyBtn.addEventListener("click", async e => {
+        btnReply.addEventListener("click", e => {
           e.preventDefault();
-          if (!currentUser) {
-            showToast("Please sign in to reply!");
-            return;
-          }
+          e.stopPropagation();
+          if (!currentUser) return showToast("Please sign in to reply!");
+          replyForm.style.display = replyForm.style.display === "flex" ? "none" : "flex";
+          replyInput.focus();
+        });
+
+        function postReply() {
           const txt = replyInput.value.trim();
           if (!txt) return;
-          await addDoc(repliesCol, {
+          addDoc(collection(db, ...nextPath), {
             text: txt,
             created: serverTimestamp(),
             author: {
               name:     currentUser.displayName,
               photoURL: currentUser.photoURL,
               uid:      currentUser.uid
-            }
-          });
-          replyInput.value = "";
+            },
+            reactions: { like: 0, love: 0 }
+          })
+          .then(() => replyInput.value = "")
+          .catch(() => showToast("Error posting reply"));
+        }
+        btnSubmit.addEventListener("click", e => {
+          e.preventDefault(); e.stopPropagation();
+          postReply();
         });
-      });
+        replyInput.addEventListener("keydown", e => {
+          if (e.key === "Enter") {
+            e.preventDefault(); e.stopPropagation();
+            postReply();
+          }
+        });
 
-      // update main comment count
-      commentCountSpan.textContent = `(${snap.size})`;
+        // recurse into replies
+        renderThread(nextPath, repliesCtr);
+      });
+    });
+  }
+
+  // ── 5. SETUP POSTS: COMMENTS + SHARE ─────────────────────────────
+  document.querySelectorAll(".post").forEach(post => {
+    // inject UI
+    const cs = document.createElement("div");
+    cs.className = "comments-section";
+    cs.innerHTML = `
+      <div class="existing-comments"></div>
+      <div class="add-comment" style="gap:8px;align-items:center;">
+        <input type="text" placeholder="Write a comment…" class="comment-input"/>
+        <button type="button" class="btn-submit-comment">Post</button>
+      </div>
+    `;
+    post.appendChild(cs);
+
+    // elements
+    const postId      = post.querySelector(".title").textContent.trim().replace(/\s+/g, "-");
+    post.id           = postId;
+    const cc          = cs.querySelector(".existing-comments");
+    const commentInput= cs.querySelector(".comment-input");
+    const btnPost     = cs.querySelector(".btn-submit-comment");
+    const commentIcon = post.querySelector(".fa-comment").parentElement;
+    const shareIcon   = post.querySelector(".fa-share-square").parentElement;
+    const ccSpan      = commentIcon.querySelector("span");
+    const scSpan      = shareIcon.querySelector("span");
+
+    // share count
+    let sc = parseInt(localStorage.getItem(`${postId}-shares`)||"0", 10);
+    scSpan.textContent = `(${sc})`;
+
+    // post top-level comment
+    function postComment() {
+      if (!currentUser) return showToast("Please sign in to comment!");
+      const txt = commentInput.value.trim();
+      if (!txt) return;
+      addDoc(collection(db, "posts", postId, "comments"), {
+        text: txt,
+        created: serverTimestamp(),
+        author: {
+          name:     currentUser.displayName,
+          photoURL: currentUser.photoURL,
+          uid:      currentUser.uid
+        },
+        reactions: { like: 0, love: 0 }
+      })
+      .then(() => commentInput.value = "")
+      .catch(() => showToast("Error posting comment"));
+    }
+    btnPost.addEventListener("click", e => {
+      e.preventDefault(); e.stopPropagation();
+      postComment();
+    });
+    commentInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault(); e.stopPropagation();
+        postComment();
+      }
     });
 
-    // Toggle comment pane
+    // render thread & update badge
+    renderThread(["posts", postId, "comments"], cc);
+    onSnapshot(
+      query(collection(db, "posts", postId, "comments"), orderBy("created","asc")),
+      snap => { ccSpan.textContent = `(${snap.size})`; }
+    );
+
+    // toggle comments pane
     commentIcon.addEventListener("click", e => {
-      e.preventDefault();
-      commentsSection.classList.toggle("visible");
+      e.preventDefault(); e.stopPropagation();
+      cs.classList.toggle("visible");
       if (currentUser) commentInput.focus();
     });
 
-    // Inline share (unchanged)
+    // share button
     shareIcon.addEventListener("click", e => {
-      e.preventDefault();
-      shareCount++;
-      shareCountSpan.textContent = `(${shareCount})`;
-      localStorage.setItem(`${keyBase}-shares`, shareCount);
-      navigator.clipboard
-        .writeText(`${location.origin}${location.pathname}#${keyBase}`)
-        .then(() => showToast("Link copied to clipboard!"))
-        .catch(() => showToast("Couldn’t copy link"));
+      e.preventDefault(); e.stopPropagation();
+      sc++;
+      scSpan.textContent = `(${sc})`;
+      localStorage.setItem(`${postId}-shares`, sc);
+      navigator.clipboard.writeText(`${location.origin}${location.pathname}#${postId}`)
+        .then(() => showToast("Link copied!"))
+        .catch(() => showToast("Couldn't copy"));
     });
   });
 
-  // ── 6) Toast helper ───────────────────────────────────────────────────────
-  function showToast(msg) {
-    let toast = document.querySelector(".toast");
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.className = "toast";
-      document.body.appendChild(toast);
-    }
-    toast.textContent = msg;
-    toast.classList.add("visible");
-    setTimeout(() => toast.classList.remove("visible"), 2000);
+  // ── 6. DEEP-LINK SCROLL ────────────────────────────────────────────
+  if (location.hash) {
+    setTimeout(() => {
+      const target = document.querySelector(location.hash);
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }
 
-  // ── 7) Deep-link scrolling on load ───────────────────────────────────────
-  if (location.hash) {
-    const target = document.querySelector(location.hash);
-    if (target) {
-      setTimeout(() => {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    }
-  }
 });
